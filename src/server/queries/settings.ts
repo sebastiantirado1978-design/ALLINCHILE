@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function getOrganization(orgId: string) {
   const supabase = await createClient();
@@ -74,7 +75,10 @@ export async function listTemplates(orgId: string) {
 }
 
 export async function getInvitationByToken(token: string) {
-  const supabase = await createClient();
+  // Service role: el token UUID ES el secret de la invitación. Cualquiera
+  // que lo posee tiene derecho a ver los datos de la invitación. No
+  // podemos pasar por RLS porque el invitado aún no es miembro de la org.
+  const supabase = createAdminClient();
   const { data } = await supabase
     .from("invitations")
     .select(`
