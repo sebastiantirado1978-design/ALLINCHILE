@@ -11,9 +11,6 @@ export const signupSchema = z.object({
   organization_name: z.string().optional(),
   email: z.string().email("Email inválido"),
   password: z.string().min(8, "Mínimo 8 caracteres"),
-  invite_token: z
-    .string()
-    .optional()
-    .transform((v) => (v ? v : undefined)),
+  invite_token: z.string().optional(),
 });
 export type SignupInput = z.infer<typeof signupSchema>;
