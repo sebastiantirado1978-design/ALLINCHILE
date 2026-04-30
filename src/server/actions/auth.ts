@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { loginSchema, signupSchema, type LoginInput, type SignupInput } from "@/lib/validations/auth";
 import { sendWelcomeEmail } from "@/lib/email";
 
@@ -59,8 +60,14 @@ export async function signupAction(input: SignupInput): Promise<AuthResult> {
     });
     if (rpcErr) return { error: rpcErr.message };
   } else {
-    // Flujo normal: crear org + membership owner
-    const { data: org, error: orgErr } = await supabase
+    // Bootstrap de la primera org del usuario. Usamos service_role porque
+    // si la confirmación de email está activa supabase.auth.signUp no
+    // devuelve sesión, y el cliente con cookies queda como anon → RLS
+    // bloquea el insert. El user.id viene de la respuesta de signUp,
+    // así que es seguro usarlo.
+    const admin = createAdminClient();
+
+    const { data: org, error: orgErr } = await admin
       .from("organizations")
       .insert({
         name: parsed.data.organization_name!,
@@ -73,7 +80,7 @@ export async function signupAction(input: SignupInput): Promise<AuthResult> {
       return { error: orgErr?.message ?? "No se pudo crear la organización" };
     }
 
-    const { error: memErr } = await supabase.from("memberships").insert({
+    const { error: memErr } = await admin.from("memberships").insert({
       user_id: data.user.id,
       organization_id: org.id,
       role: "owner",
@@ -81,7 +88,7 @@ export async function signupAction(input: SignupInput): Promise<AuthResult> {
 
     if (memErr) return { error: memErr.message };
 
-    await supabase
+    await admin
       .from("profiles")
       .update({ default_org_id: org.id })
       .eq("id", data.user.id);
