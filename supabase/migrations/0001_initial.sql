@@ -630,7 +630,7 @@ begin
   return new;
 end $$;
 
-create trigger trg_bump_ticket on ticket_messages after insert on ticket_messages
+create trigger trg_bump_ticket after insert on ticket_messages
   for each row execute function bump_ticket_last_message();
 
 -- ============================================================================
@@ -647,5 +647,5 @@ begin
   return new;
 end $$;
 
-create trigger trg_bump_contact on interactions after insert on interactions
+create trigger trg_bump_contact after insert on interactions
   for each row execute function bump_contact_last_interaction();
