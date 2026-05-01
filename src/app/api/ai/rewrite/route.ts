@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentOrg } from "@/server/queries/me";
+import { logAi } from "@/server/ai-logger";
 import { aiLimiter } from "@/lib/rate-limit";
+
+const MODEL = "claude-sonnet-4-6";
 
 // ============================================================================
 // System prompt (>2048 tokens para asegurar prompt caching en Sonnet 4.6)
@@ -188,9 +192,13 @@ export async function POST(req: NextRequest) {
 
   userMessage += `Texto del agente a reescribir:\n${input.text}\n\nDevuelve SOLO el texto reescrito, sin comentarios.`;
 
+  // Org del usuario para asociar el log
+  const org = await getCurrentOrg();
+  const startTime = Date.now();
+
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: MODEL,
       max_tokens: 2048,
       system: [
         {
@@ -210,11 +218,52 @@ export async function POST(req: NextRequest) {
       .join("")
       .trim();
 
+    const durationMs = Date.now() - startTime;
+
     if (!text) {
+      // Log: respuesta vacía
+      if (org?.id) {
+        void logAi({
+          organizationId: org.id,
+          userId: user.id,
+          endpoint: "rewrite",
+          action: input.action,
+          inputText: input.text,
+          outputText: null,
+          model: MODEL,
+          inputTokens: response.usage.input_tokens,
+          outputTokens: response.usage.output_tokens,
+          cacheReadTokens: response.usage.cache_read_input_tokens ?? 0,
+          cacheCreationTokens: response.usage.cache_creation_input_tokens ?? 0,
+          error: "empty_response",
+          durationMs,
+        });
+      }
       return NextResponse.json(
         { error: "Respuesta vacía del modelo. Intenta de nuevo." },
         { status: 502 },
       );
+    }
+
+    // Log: éxito
+    if (org?.id) {
+      void logAi({
+        organizationId: org.id,
+        userId: user.id,
+        endpoint: "rewrite",
+        action: input.action,
+        inputText: input.text,
+        outputText: text,
+        model: MODEL,
+        inputTokens: response.usage.input_tokens,
+        outputTokens: response.usage.output_tokens,
+        cacheReadTokens: response.usage.cache_read_input_tokens ?? 0,
+        cacheCreationTokens: response.usage.cache_creation_input_tokens ?? 0,
+        durationMs,
+        context: input.context && input.context.length > 0
+          ? { context_messages: input.context.length }
+          : null,
+      });
     }
 
     return NextResponse.json({
@@ -227,25 +276,42 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (e) {
+    const durationMs = Date.now() - startTime;
+    let errorLabel = "unexpected_error";
+    let errorMessage = "Error inesperado del copiloto";
+    let status = 500;
+
     if (e instanceof Anthropic.RateLimitError) {
-      return NextResponse.json(
-        { error: "Servicio IA saturado, intenta en unos segundos" },
-        { status: 429 },
-      );
+      errorLabel = "rate_limit";
+      errorMessage = "Servicio IA saturado, intenta en unos segundos";
+      status = 429;
+    } else if (e instanceof Anthropic.AuthenticationError) {
+      errorLabel = "auth_error";
+      errorMessage = "Credenciales del copiloto IA inválidas";
+      status = 503;
+    } else if (e instanceof Anthropic.APIError) {
+      errorLabel = "api_error";
+      errorMessage = `Error del servicio IA: ${e.message}`;
+      status = 502;
+    } else {
+      console.error("AI rewrite error:", e);
     }
-    if (e instanceof Anthropic.AuthenticationError) {
-      return NextResponse.json(
-        { error: "Credenciales del copiloto IA inválidas" },
-        { status: 503 },
-      );
+
+    // Log: error
+    if (org?.id) {
+      void logAi({
+        organizationId: org.id,
+        userId: user.id,
+        endpoint: "rewrite",
+        action: input.action,
+        inputText: input.text,
+        outputText: null,
+        model: MODEL,
+        error: errorLabel,
+        durationMs,
+      });
     }
-    if (e instanceof Anthropic.APIError) {
-      return NextResponse.json(
-        { error: `Error del servicio IA: ${e.message}` },
-        { status: 502 },
-      );
-    }
-    console.error("AI rewrite error:", e);
-    return NextResponse.json({ error: "Error inesperado del copiloto" }, { status: 500 });
+
+    return NextResponse.json({ error: errorMessage }, { status });
   }
 }

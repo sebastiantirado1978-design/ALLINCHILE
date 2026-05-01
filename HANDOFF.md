@@ -53,7 +53,8 @@ Después: **Redeploy** del último commit en branch `v2-equipo-comercial-digital
 > Lista actualizada en cada commit grande. Ver `git log` para detalle.
 
 - `3df8c9a` — chore(v2): inicio Sprint 1 — HANDOFF.md + migración 0007
-- `<pending>` — feat(v2): triggers SQL de audit log en entidades de negocio
+- `ccc19a2` — feat(v2): triggers SQL de audit log en entidades de negocio
+- `<pending>` — feat(v2): persistencia de logs IA en /api/ai/rewrite
 
 ## Decisiones tomadas autónomas (te las cuento por transparencia)
 
