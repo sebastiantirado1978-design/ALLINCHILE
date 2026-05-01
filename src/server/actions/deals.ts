@@ -47,13 +47,7 @@ export async function createDealAction(input: DealInput) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "created",
-    entity_type: "deal",
-    entity_id: data.id,
-  });
+  // Audit log de "created" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/deals");
   revalidatePath("/dashboard");
@@ -81,13 +75,7 @@ export async function updateDealAction(id: string, input: DealInput) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "updated",
-    entity_type: "deal",
-    entity_id: id,
-  });
+  // Audit log de "updated" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/deals");
   revalidatePath(`/deals/${id}`);
@@ -160,13 +148,7 @@ export async function deleteDealAction(id: string) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "deleted",
-    entity_type: "deal",
-    entity_id: id,
-  });
+  // Audit log de "deleted" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/deals");
   redirect("/deals");

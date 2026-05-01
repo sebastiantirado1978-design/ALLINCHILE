@@ -46,13 +46,7 @@ export async function createTaskAction(input: TaskInput) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "created",
-    entity_type: "task",
-    entity_id: data.id,
-  });
+  // Audit log de "created" lo escribe el trigger SQL automáticamente (mig 0008).
 
   // Notificar al asignado (si no es el mismo creador)
   if (parsed.data.assignee_id && parsed.data.assignee_id !== user.id) {
@@ -98,13 +92,7 @@ export async function updateTaskAction(id: string, input: TaskInput) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "updated",
-    entity_type: "task",
-    entity_id: id,
-  });
+  // Audit log de "updated" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/tasks");
   revalidatePath(`/tasks/${id}`);
@@ -164,13 +152,7 @@ export async function deleteTaskAction(id: string) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "deleted",
-    entity_type: "task",
-    entity_id: id,
-  });
+  // Audit log de "deleted" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/tasks");
   revalidatePath("/dashboard");

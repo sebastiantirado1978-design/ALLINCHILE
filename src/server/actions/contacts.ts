@@ -36,13 +36,7 @@ export async function createContactAction(input: ContactInput) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "created",
-    entity_type: "contact",
-    entity_id: data.id,
-  });
+  // Audit log de "created" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/contacts");
   revalidatePath("/dashboard");
@@ -74,13 +68,7 @@ export async function updateContactAction(id: string, input: ContactInput) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "updated",
-    entity_type: "contact",
-    entity_id: id,
-  });
+  // Audit log de "updated" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/contacts");
   revalidatePath(`/contacts/${id}`);
@@ -105,13 +93,7 @@ export async function deleteContactAction(id: string) {
 
   if (error) return { error: error.message };
 
-  await supabase.from("audit_logs").insert({
-    organization_id: org.id,
-    actor_id: user.id,
-    action: "deleted",
-    entity_type: "contact",
-    entity_id: id,
-  });
+  // Audit log de "deleted" lo escribe el trigger SQL automáticamente (mig 0008).
 
   revalidatePath("/contacts");
   redirect("/contacts");
