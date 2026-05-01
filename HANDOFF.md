@@ -19,7 +19,8 @@ URL: https://supabase.com/dashboard/project/xnfufbctcmeltcsxohpk/sql/new
 
 Aplicar en orden, una a la vez (Cmd+A → Delete → Cmd+V → Run):
 
-- [ ] `supabase/migrations/0007_consent_and_ai_logs.sql`
+- [ ] `supabase/migrations/0007_consent_and_ai_logs.sql` — campos consentimiento en contacts + tabla ai_logs
+- [ ] `supabase/migrations/0008_audit_log_triggers.sql` — triggers automáticos en contacts/companies/deals/tickets/tasks
 - [ ] (más migraciones aparecerán aquí según avance la noche)
 
 #### 2. Crear cuentas en servicios externos
@@ -51,7 +52,8 @@ Después: **Redeploy** del último commit en branch `v2-equipo-comercial-digital
 
 > Lista actualizada en cada commit grande. Ver `git log` para detalle.
 
-(En curso — primer commit pendiente)
+- `3df8c9a` — chore(v2): inicio Sprint 1 — HANDOFF.md + migración 0007
+- `<pending>` — feat(v2): triggers SQL de audit log en entidades de negocio
 
 ## Decisiones tomadas autónomas (te las cuento por transparencia)
 
