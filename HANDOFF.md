@@ -44,9 +44,10 @@ Después: **Redeploy** del último commit en branch `v2-equipo-comercial-digital
 
 ### 🟡 Revisión (no bloqueante pero recomendado)
 
-- [ ] Revisar `app/legal/privacy/page.tsx` y `app/legal/terms/page.tsx` con tu abogado para Ley 21.719.
-- [ ] Decidir contenido final de `app/pricing/page.tsx` (precios y features por plan).
-- [ ] Aprobar el OG image generado y el favicon.
+- [ ] Revisar `app/legal/privacy/page.tsx` con tu abogado. Template alineado a Ley 21.719 + 19.628 con secciones ARCOPOL, subprocesadores, decisiones automatizadas e IA. Incluye email `privacidad@allinchile.cl` (que aún no existe — crear cuando tengas dominio).
+- [ ] Revisar `app/legal/terms/page.tsx` con abogado. Cubre planes/precios, uso aceptable, propiedad de datos, limitación de responsabilidad, IA, ley chilena, jurisdicción Santiago.
+- [ ] Revisar `app/pricing/page.tsx`. Precios actuales: Starter $89k / Pro $185k / Business $390k + IVA. FAQ con 7 preguntas. Setup fee opcional Business $250k.
+- [ ] Aprobar el OG image generado y el favicon (Iter 7).
 
 ## Trabajo realizado esta noche (commits)
 
@@ -54,7 +55,8 @@ Después: **Redeploy** del último commit en branch `v2-equipo-comercial-digital
 
 - `3df8c9a` — chore(v2): inicio Sprint 1 — HANDOFF.md + migración 0007
 - `ccc19a2` — feat(v2): triggers SQL de audit log en entidades de negocio
-- `<pending>` — feat(v2): persistencia de logs IA en /api/ai/rewrite
+- `a62aab4` — feat(v2): persistencia de logs IA en /api/ai/rewrite
+- `<pending>` — feat(v2): páginas legales privacy/terms + pricing
 
 ## Decisiones tomadas autónomas (te las cuento por transparencia)
 
