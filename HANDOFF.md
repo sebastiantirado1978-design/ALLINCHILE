@@ -56,7 +56,9 @@ Después: **Redeploy** del último commit en branch `v2-equipo-comercial-digital
 - `3df8c9a` — chore(v2): inicio Sprint 1 — HANDOFF.md + migración 0007
 - `ccc19a2` — feat(v2): triggers SQL de audit log en entidades de negocio
 - `a62aab4` — feat(v2): persistencia de logs IA en /api/ai/rewrite
-- `<pending>` — feat(v2): páginas legales privacy/terms + pricing
+- `05a01d5` — feat(v2): páginas legales privacy/terms + pricing
+- `d73faea` — refactor(audit): eliminar inserts redundantes ahora cubiertos por trigger
+- `<pending>` — feat(v2): UI consentimiento + página pública de baja /unsubscribe/[token]
 
 ## Decisiones tomadas autónomas (te las cuento por transparencia)
 

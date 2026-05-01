@@ -12,5 +12,10 @@ export const contactSchema = z.object({
   status: z.enum(["lead", "active", "inactive", "churned"]),
   notes: z.string().optional(),
   company_id: z.string().uuid().optional().or(z.literal("")),
+
+  // Consentimiento explícito (Ley 21.719). Si true, el server action setea
+  // consent_given_at = now() y consent_source según contexto.
+  consent_given: z.boolean().optional(),
+  consent_source: z.string().optional(),
 });
 export type ContactInput = z.infer<typeof contactSchema>;

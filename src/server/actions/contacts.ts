@@ -19,13 +19,16 @@ export async function createContactAction(input: ContactInput) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
+  const { consent_given, consent_source, ...rest } = parsed.data;
   const payload = {
-    ...parsed.data,
+    ...rest,
     email: parsed.data.email || null,
     company_id: parsed.data.company_id || null,
     organization_id: org.id,
     created_by: user.id,
     owner_id: user.id,
+    consent_given_at: consent_given ? new Date().toISOString() : null,
+    consent_source: consent_given ? (consent_source || "manual") : null,
   };
 
   const { data, error } = await supabase
@@ -56,13 +59,22 @@ export async function updateContactAction(id: string, input: ContactInput) {
   } = await supabase.auth.getUser();
   if (!user) return { error: "No autenticado" };
 
+  const { consent_given, consent_source, ...rest } = parsed.data;
+  const updatePayload: Record<string, unknown> = {
+    ...rest,
+    email: parsed.data.email || null,
+    company_id: parsed.data.company_id || null,
+  };
+  // Solo modificar consent fields si el usuario tocó el checkbox
+  // (consent_given undefined = no incluido en el form, no tocar).
+  if (consent_given === true) {
+    updatePayload.consent_given_at = new Date().toISOString();
+    updatePayload.consent_source = consent_source || "manual";
+  }
+
   const { error } = await supabase
     .from("contacts")
-    .update({
-      ...parsed.data,
-      email: parsed.data.email || null,
-      company_id: parsed.data.company_id || null,
-    })
+    .update(updatePayload)
     .eq("id", id)
     .eq("organization_id", org.id);
 

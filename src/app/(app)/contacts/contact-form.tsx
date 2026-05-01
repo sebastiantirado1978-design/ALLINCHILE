@@ -45,6 +45,8 @@ export function ContactForm({
       notes: initial?.notes ?? "",
       status: initial?.status ?? "lead",
       company_id: initial?.company_id ?? "",
+      consent_given: initial?.consent_given ?? false,
+      consent_source: initial?.consent_source ?? "manual",
     },
   });
 
@@ -158,6 +160,28 @@ export function ContactForm({
               {...register("notes")}
             />
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Consentimiento</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1 size-4 rounded border-[var(--input)]"
+              {...register("consent_given")}
+            />
+            <span className="text-sm text-[var(--muted-foreground)] leading-relaxed">
+              Confirmo que este contacto autorizó ser contactado para fines
+              comerciales (Ley 21.719 / 19.628). El consentimiento podrá
+              revocarse en cualquier momento desde el link de baja en los
+              mensajes salientes.
+            </span>
+          </label>
+          <input type="hidden" {...register("consent_source")} />
         </CardContent>
       </Card>
 
